@@ -29,6 +29,8 @@ def main():
     client = MattermostAPIv4(config["mattermost"]["server"], ssl_verify=config["mattermost"]["server_ssl"])
     user = client.login(config["mattermost"]["team"], config["mattermost"]["user"], config["mattermost"]["password"])
 
+
+
     _doorbell_bot = DoorbellBot(client, user, config["doorbell"])
     _doorbell_bot.start()
 
