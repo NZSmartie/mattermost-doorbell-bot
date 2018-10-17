@@ -1,0 +1,12 @@
+[Unit]
+Description=Doorbell Bot for Mattermsot
+
+[Service]
+Type=simple
+User=doorbell-bot
+Group=doorbell-bot
+WorkingDirectory=/opt/doorbell-bot
+ExecStart=/opt/doorbell-bot/doorbell.sh
+
+[Install]
+WantedBy=multi-user.target

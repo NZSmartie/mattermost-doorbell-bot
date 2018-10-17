@@ -1,12 +1,16 @@
 #!/usr/bin/env python3
 
-import os.path, random, requests, signal, subprocess, sys, threading
+import os.path
+import random
+import requests
+import signal
+import subprocess
+import sys
+import threading
 
-import mmpy_bot, toml
+import toml
 
-from mmpy_bot.mattermost_v4 import MattermostAPIv4
-from mmpy_bot.mattermost import MattermostAPI
-
+import doorbell
 from doorbell import DoorbellBot
 
 _doorbell_bot = None
@@ -19,25 +23,21 @@ def main():
     with open("secrets.toml") as f:
         config = toml.load(f)
 
+    request_session = requests.Session()
     if "proxy" in config:
-        request_session = requests.Session()
+        print("configuring requests to use proxy")
         request_session.proxies.update(config["proxy"])
-        # Replace the requests import in mmpy_bot to use our proxied Session instance.
-        mmpy_bot.mattermost_v4.requests = request_session
-        mmpy_bot.mattermost.requests = request_session
 
-    client = MattermostAPIv4(config["mattermost"]["server"], ssl_verify=config["mattermost"]["server_ssl"])
-    user = client.login(config["mattermost"]["team"], config["mattermost"]["user"], config["mattermost"]["password"])
-
-
-
-    _doorbell_bot = DoorbellBot(client, user, config["doorbell"])
+    print("Starting doorbell bot")
+    _doorbell_bot = DoorbellBot(config, request_session)
     _doorbell_bot.start()
 
 
 def signal_handler(sig, frame):
+    print("stopping doorbell bot")
     if _doorbell_bot is not None:
         _doorbell_bot.stop()
+    print("quitting")
 
 
 if __name__ == '__main__':
