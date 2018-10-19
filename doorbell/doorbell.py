@@ -7,6 +7,7 @@ import threading
 
 from datetime import datetime, timedelta
 
+import jmespath
 import requests
 
 
@@ -43,10 +44,13 @@ class DoorbellBot(object):
                 doorbell_next = datetime.now() + timedelta(seconds=5)
                 print("Received doorbell signal at {}".format(datetime.now()))
 
+                sourceName = random.choice([source for source in self.config["facts"]])
+                source = self.config["facts"][sourceName]
+
                 print("Fetching message")
                 try:
-                    joke = self.requests.get('https://catfact.ninja/fact', timeout=1)
-                    joke = "Cat Fact: {}".format(joke.json()['fact'])
+                    joke = self.requests.get(source['url'], timeout=1)
+                    joke = "{}{}".format(source['prefix'], jmespath.search(source['jmespath'], joke.json()))
                 except:
                     print("Failed to fetch message. Using backup")
                     joke = random.choice(self.config["messages"])
