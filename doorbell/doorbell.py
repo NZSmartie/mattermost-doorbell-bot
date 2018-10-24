@@ -32,8 +32,9 @@ class DoorbellBot(object):
 
         print("rtl_433 started with PID: {}".format(self.doorbell_proc.pid))
 
-        things = binascii.hexlify(bytes(self.config["doorbell"]["payload"]))
-        needle = b"{%d}%s" % (self.config["doorbell"]["payload_length"], things)
+        payload_length = int(self.config["doorbell"]["payload_length"])
+        things = binascii.hexlify(bytes(self.config["doorbell"]["payload"]))[:int(((payload_length-1)/4)+1)]
+        needle = b"{%d}%s" % (payload_length, things)
 
         print("needle is {}".format(needle))
 
